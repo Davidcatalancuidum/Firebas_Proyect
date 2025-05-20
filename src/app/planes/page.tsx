@@ -25,7 +25,7 @@ const plans: Plan[] = [
   {
     id: 'basic',
     icon: CheckCircle,
-    title: 'Basic',
+    title: 'Basico',
     price: '1€',
     priceDetails: 'por mes',
     description: 'Ideal para empezar y organizar tus tareas personales.',
@@ -36,7 +36,7 @@ const plans: Plan[] = [
       { text: 'Soporte por email', included: false },
       { text: 'Integraciones básicas', included: false },
     ],
-    buttonText: 'Comenzar con Basic',
+    buttonText: 'Comenzar con Basico',
   },
   {
     id: 'estandar',
