@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'; // Added this line
+import React from 'react';
 import type { Task } from '@/types/task';
 import TaskItem from './TaskItem';
 
@@ -17,11 +17,11 @@ export default function TaskList({ tasks, onToggleComplete, onDeleteTask, onReor
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
     setDraggedItemId(id);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", id); // Necessary for Firefox
+    e.dataTransfer.setData("text/plain", id); 
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault(); // Necessary to allow dropping
+    e.preventDefault(); 
     e.dataTransfer.dropEffect = "move";
   };
 
@@ -36,13 +36,13 @@ export default function TaskList({ tasks, onToggleComplete, onDeleteTask, onReor
   if (tasks.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10">
-        <p className="text-lg">No tasks yet. Add a new task to get started!</p>
+        <p className="text-lg">Aún no hay tareas. ¡Añade una nueva tarea para empezar!</p> {/* Translated */}
       </div>
     );
   }
 
   return (
-    <div className="space-y-0"> {/* Remove space-y-4 if TaskItem has mb */}
+    <div className="space-y-0">
       {tasks.sort((a, b) => a.order - b.order).map((task) => (
         <TaskItem
           key={task.id}

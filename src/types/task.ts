@@ -4,4 +4,5 @@ export interface Task {
   tags: string[];
   completed: boolean;
   order: number;
+  assignedTo?: string; // Added field for assignee
 }

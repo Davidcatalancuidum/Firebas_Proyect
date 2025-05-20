@@ -22,10 +22,10 @@ export default function DiaMaestroPage() {
         setTasks(JSON.parse(storedTasks));
       }
     } catch (error) {
-      console.error("Failed to load tasks from local storage:", error);
+      console.error("Error al cargar tareas del almacenamiento local:", error);
       toast({
-        title: "Error Loading Tasks",
-        description: "Could not load tasks from your browser's storage.",
+        title: "Error al Cargar Tareas",
+        description: "No se pudieron cargar las tareas del almacenamiento de tu navegador.",
         variant: "destructive",
       });
     }
@@ -36,28 +36,29 @@ export default function DiaMaestroPage() {
       try {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
       } catch (error) {
-        console.error("Failed to save tasks to local storage:", error);
+        console.error("Error al guardar tareas en el almacenamiento local:", error);
         toast({
-          title: "Error Saving Tasks",
-          description: "Could not save tasks to your browser's storage.",
+          title: "Error al Guardar Tareas",
+          description: "No se pudieron guardar las tareas en el almacenamiento de tu navegador.",
           variant: "destructive",
         });
       }
     }
   }, [tasks, isMounted, toast]);
 
-  const handleAddTask = useCallback((name: string, tags: string[]) => {
+  const handleAddTask = useCallback((name: string, tags: string[], assignedTo?: string) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       name,
       tags,
       completed: false,
       order: tasks.length > 0 ? Math.max(...tasks.map(t => t.order)) + 1 : 0,
+      assignedTo: assignedTo || undefined,
     };
     setTasks(prevTasks => [...prevTasks, newTask]);
     toast({
-      title: "Task Added",
-      description: `"${name}" has been added to your list.`,
+      title: "Tarea Añadida",
+      description: `"${name}" ha sido añadida a tu lista${assignedTo ? ` y asignada a ${assignedTo}` : ''}.`,
     });
   }, [tasks, toast]);
 
@@ -72,8 +73,8 @@ export default function DiaMaestroPage() {
   const handleDeleteTask = useCallback((id: string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     toast({
-      title: "Task Deleted",
-      description: "The task has been removed.",
+      title: "Tarea Eliminada",
+      description: "La tarea ha sido eliminada.",
       variant: "destructive"
     });
   }, [toast]);
@@ -89,19 +90,15 @@ export default function DiaMaestroPage() {
       const newTasks = [...prevTasks];
       const [draggedTask] = newTasks.splice(draggedTaskIndex, 1);
       
-      // Adjust index if dragged item was before target in the original array
       const adjustedTargetIndex = draggedTaskIndex < targetTaskIndex ? targetTaskIndex -1 : targetTaskIndex;
       
       newTasks.splice(adjustedTargetIndex, 0, draggedTask);
 
-      // Update order property
       return newTasks.map((task, index) => ({ ...task, order: index }));
     });
   }, []);
 
   if (!isMounted) {
-    // You can return a loading spinner or a simplified layout here
-    // to avoid hydration mismatches if localStorage access is too slow.
     return (
       <div className="flex justify-center items-center min-h-screen">
         <ListChecks className="h-12 w-12 animate-pulse text-primary" />
@@ -117,7 +114,7 @@ export default function DiaMaestroPage() {
           Día Maestro
         </h1>
         <p className="text-lg text-muted-foreground mt-1">
-          Master your day, one task at a time.
+          Domina tu día, una tarea a la vez.
         </p>
       </header>
 
@@ -132,7 +129,7 @@ export default function DiaMaestroPage() {
       </main>
       
       <footer className="mt-12 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Día Maestro. Crafted with care.</p>
+        <p>&copy; {new Date().getFullYear()} Día Maestro. Hecho con esmero.</p>
       </footer>
     </div>
   );

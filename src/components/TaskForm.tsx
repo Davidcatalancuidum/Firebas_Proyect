@@ -8,23 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Sparkles, Loader2 } from 'lucide-react';
+import { PlusCircle, Sparkles, Loader2, UserPlus } from 'lucide-react';
 import { suggestTaskCategory, type SuggestTaskCategoryInput } from '@/ai/flows/suggest-task-category';
 import { Badge } from './ui/badge';
 import { useToast } from "@/hooks/use-toast";
 
 const taskFormSchema = z.object({
-  name: z.string().min(1, 'Task name is required'),
+  name: z.string().min(1, 'El nombre de la tarea es obligatorio'),
   tags: z.string().optional(),
+  assignedTo: z.string().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
-  onAddTask: (name: string, tags: string[]) => void;
+  onAddTask: (name: string, tags: string[], assignedTo?: string) => void;
 }
 
-// Debounce function
 const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
@@ -57,10 +57,10 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
       const result = await suggestTaskCategory(input);
       setSuggestedCategories(result.categorySuggestions || []);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error('Error al obtener sugerencias:', error);
       toast({
-        title: "AI Suggestion Error",
-        description: "Could not fetch tag suggestions.",
+        title: "Error de Sugerencia IA",
+        description: "No se pudieron obtener sugerencias de etiquetas.",
         variant: "destructive",
       });
       setSuggestedCategories([]);
@@ -81,7 +81,7 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
 
   const onSubmit: SubmitHandler<TaskFormData> = (data) => {
     const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-    onAddTask(data.name, tagsArray);
+    onAddTask(data.name, tagsArray, data.assignedTo);
     reset();
     setSuggestedCategories([]);
   };
@@ -99,17 +99,17 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center text-xl">
           <PlusCircle className="mr-2 h-6 w-6 text-primary" />
-          Add New Task
+          Añadir Nueva Tarea
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <Label htmlFor="name" className="block text-sm font-medium mb-1">Task Name</Label>
+            <Label htmlFor="name" className="block text-sm font-medium mb-1">Nombre de la Tarea</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="E.g., Buy groceries"
+              placeholder="Ej., Comprar víveres"
               className="text-base"
               aria-invalid={errors.name ? "true" : "false"}
             />
@@ -118,14 +118,14 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
             {isSuggesting && (
               <div className="mt-2 flex items-center text-sm text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating AI suggestions...
+                Generando sugerencias IA...
               </div>
             )}
             {!isSuggesting && suggestedCategories.length > 0 && (
               <div className="mt-2">
                 <p className="text-xs text-muted-foreground mb-1 flex items-center">
                   <Sparkles className="h-3 w-3 mr-1 text-primary" />
-                  AI Suggestions:
+                  Sugerencias IA (Etiquetas):
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestedCategories.map((cat, index) => (
@@ -147,17 +147,30 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="tags" className="block text-sm font-medium mb-1">Tags (comma-separated)</Label>
+            <Label htmlFor="tags" className="block text-sm font-medium mb-1">Etiquetas (separadas por comas)</Label>
             <Input
               id="tags"
               {...register('tags')}
-              placeholder="E.g., work, personal, urgent"
+              placeholder="Ej., trabajo, personal, urgente"
               className="text-base"
             />
           </div>
 
+          <div>
+            <Label htmlFor="assignedTo" className="block text-sm font-medium mb-1">Asignar a (opcional)</Label>
+            <div className="flex items-center">
+              <UserPlus className="h-5 w-5 mr-2 text-muted-foreground" />
+              <Input
+                id="assignedTo"
+                {...register('assignedTo')}
+                placeholder="Nombre del trabajador"
+                className="text-base"
+              />
+            </div>
+          </div>
+
           <Button type="submit" className="w-full sm:w-auto text-base py-2.5 px-6">
-            <PlusCircle className="mr-2 h-5 w-5" /> Add Task
+            <PlusCircle className="mr-2 h-5 w-5" /> Añadir Tarea
           </Button>
         </form>
       </CardContent>
