@@ -58,7 +58,7 @@ const plans: Plan[] = [
   {
     id: 'pro',
     icon: Zap,
-    title: 'Pro',
+    title: 'Premium',
     price: '10€',
     priceDetails: 'por mes',
     description: 'Todas las funcionalidades para profesionales y empresas.',
@@ -69,7 +69,7 @@ const plans: Plan[] = [
       { text: 'Acceso API (Próximamente)', included: true },
       { text: 'Soporte VIP 24/7', included: true },
     ],
-    buttonText: 'Pasar a Pro',
+    buttonText: 'Pasar a Premium',
   },
 ];
 
