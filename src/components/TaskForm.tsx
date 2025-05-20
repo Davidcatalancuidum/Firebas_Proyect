@@ -1,14 +1,17 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { Worker } from '@/types/worker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Sparkles, Loader2, UserPlus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlusCircle, Sparkles, Loader2, Users } from 'lucide-react';
 import { suggestTaskCategory, type SuggestTaskCategoryInput } from '@/ai/flows/suggest-task-category';
 import { Badge } from './ui/badge';
 import { useToast } from "@/hooks/use-toast";
@@ -16,13 +19,14 @@ import { useToast } from "@/hooks/use-toast";
 const taskFormSchema = z.object({
   name: z.string().min(1, 'El nombre de la tarea es obligatorio'),
   tags: z.string().optional(),
-  assignedTo: z.string().optional(),
+  assignedToId: z.string().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
-  onAddTask: (name: string, tags: string[], assignedTo?: string) => void;
+  onAddTask: (name: string, tags: string[], assignedToId?: string) => void;
+  workers: Worker[];
 }
 
 const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
@@ -36,13 +40,23 @@ const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) =
     });
 };
 
-export default function TaskForm({ onAddTask }: TaskFormProps) {
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<TaskFormData>({
+export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
+  const { register, handleSubmit, reset, watch, setValue, control, formState: { errors } } = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      name: '',
+      tags: '',
+      assignedToId: undefined,
+    }
   });
   const { toast } = useToast();
   const [suggestedCategories, setSuggestedCategories] = useState<string[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const taskName = watch('name');
 
@@ -81,8 +95,8 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
 
   const onSubmit: SubmitHandler<TaskFormData> = (data) => {
     const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-    onAddTask(data.name, tagsArray, data.assignedTo);
-    reset();
+    onAddTask(data.name, tagsArray, data.assignedToId);
+    reset(); // Resets to defaultValues
     setSuggestedCategories([]);
   };
 
@@ -157,17 +171,41 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="assignedTo" className="block text-sm font-medium mb-1">Asignar a</Label>
+            <Label htmlFor="assignedToId" className="block text-sm font-medium mb-1">Asignar a</Label>
             <div className="flex items-center">
-              <UserPlus className="h-5 w-5 mr-2 text-muted-foreground" />
-              <Input
-                id="assignedTo"
-                {...register('assignedTo')}
-                placeholder="Nombre del trabajador"
-                className="text-base"
-              />
+                <Users className="h-5 w-5 mr-2 text-muted-foreground" />
+                <Controller
+                    name="assignedToId"
+                    control={control}
+                    render={({ field }) => (
+                        <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={!isClient || workers.length === 0}
+                        >
+                            <SelectTrigger className="w-full text-base">
+                                <SelectValue placeholder={
+                                    !isClient ? "Cargando..." :
+                                    workers.length === 0 ? "No hay trabajadores disponibles" :
+                                    "Seleccionar trabajador"
+                                } />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {isClient && workers.length > 0 ? workers.map(worker => (
+                                    <SelectItem key={worker.id} value={worker.id}>
+                                        {worker.name} ({worker.department})
+                                    </SelectItem>
+                                )) : (
+                                  isClient && <SelectItem value="no-workers" disabled>No hay trabajadores para asignar</SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
             </div>
+            {errors.assignedToId && <p className="text-sm text-destructive mt-1">{errors.assignedToId.message}</p>}
           </div>
+
 
           <Button type="submit" className="w-full sm:w-auto text-base py-2.5 px-6">
             <PlusCircle className="mr-2 h-5 w-5" /> Añadir Tarea

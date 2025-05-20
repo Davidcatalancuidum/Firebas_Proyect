@@ -1,17 +1,20 @@
+
 "use client";
 
 import React from 'react';
 import type { Task } from '@/types/task';
+import type { Worker } from '@/types/worker';
 import TaskItem from './TaskItem';
 
 interface TaskListProps {
   tasks: Task[];
+  workers: Worker[];
   onToggleComplete: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onReorderTasks: (draggedId: string, targetId: string) => void;
 }
 
-export default function TaskList({ tasks, onToggleComplete, onDeleteTask, onReorderTasks }: TaskListProps) {
+export default function TaskList({ tasks, workers, onToggleComplete, onDeleteTask, onReorderTasks }: TaskListProps) {
   const [draggedItemId, setDraggedItemId] = React.useState<string | null>(null);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
@@ -36,7 +39,7 @@ export default function TaskList({ tasks, onToggleComplete, onDeleteTask, onReor
   if (tasks.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10">
-        <p className="text-lg">Aún no hay tareas. ¡Añade una nueva tarea para empezar!</p> {/* Translated */}
+        <p className="text-lg">Aún no hay tareas. ¡Añade una nueva tarea para empezar!</p>
       </div>
     );
   }
@@ -47,6 +50,7 @@ export default function TaskList({ tasks, onToggleComplete, onDeleteTask, onReor
         <TaskItem
           key={task.id}
           task={task}
+          workers={workers}
           onToggleComplete={onToggleComplete}
           onDeleteTask={onDeleteTask}
           onDragStart={handleDragStart}

@@ -1,15 +1,18 @@
+
 "use client";
 
 import type React from 'react';
 import type { Task } from '@/types/task';
+import type { Worker } from '@/types/worker';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { GripVertical, Trash2, UserCircle2 } from 'lucide-react'; // Added UserCircle2
+import { GripVertical, Trash2, UserCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface TaskItemProps {
   task: Task;
+  workers: Worker[];
   onToggleComplete: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onDragStart: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
@@ -19,12 +22,16 @@ interface TaskItemProps {
 
 export default function TaskItem({ 
   task, 
+  workers,
   onToggleComplete, 
   onDeleteTask,
   onDragStart,
   onDragOver,
   onDrop
 }: TaskItemProps) {
+  
+  const assignedWorker = task.assignedToId ? workers.find(w => w.id === task.assignedToId) : null;
+
   return (
     <Card 
       draggable 
@@ -34,14 +41,14 @@ export default function TaskItem({
       className="mb-3 shadow-md hover:shadow-lg transition-shadow duration-200 cursor-grab active:cursor-grabbing"
       data-testid={`task-item-${task.id}`}
     >
-      <CardContent className="p-4 flex items-start space-x-4"> {/* Changed items-center to items-start for better layout with assignee */}
-        <GripVertical className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" aria-hidden="true" /> {/* Added mt-1 for alignment */}
+      <CardContent className="p-4 flex items-start space-x-4">
+        <GripVertical className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" aria-hidden="true" />
         <Checkbox
           id={`task-${task.id}`}
           checked={task.completed}
           onCheckedChange={() => onToggleComplete(task.id)}
           aria-labelledby={`task-name-${task.id}`}
-          className="mt-1 flex-shrink-0" // Added mt-1 for alignment
+          className="mt-1 flex-shrink-0"
         />
         <div className="flex-grow">
           <label
@@ -52,10 +59,10 @@ export default function TaskItem({
             {task.name}
           </label>
           
-          {task.assignedTo && (
+          {assignedWorker && (
             <div className="mt-1.5 flex items-center text-xs text-muted-foreground">
               <UserCircle2 className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
-              <span>Asignado a: {task.assignedTo}</span>
+              <span>Asignado a: {assignedWorker.name} ({assignedWorker.department})</span>
             </div>
           )}
 
@@ -73,7 +80,7 @@ export default function TaskItem({
           variant="ghost" 
           size="icon" 
           onClick={() => onDeleteTask(task.id)}
-          aria-label={`Eliminar tarea ${task.name}`} // Translated
+          aria-label={`Eliminar tarea ${task.name}`}
           className="flex-shrink-0"
         >
           <Trash2 className="h-4 w-4 text-destructive" />
