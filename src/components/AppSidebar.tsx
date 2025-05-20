@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks } from 'lucide-react';
+import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks, Award } from 'lucide-react';
 import { 
   Sidebar, 
   SidebarHeader, 
@@ -29,6 +29,7 @@ export default function AppSidebar() {
   const supportItems = [
     { href: '/ayuda', label: 'Ayuda', icon: HelpCircle },
     { href: '/integraciones', label: 'Integraciones', icon: Settings },
+    { href: '/planes', label: 'Planes', icon: Award },
   ];
 
   return (
