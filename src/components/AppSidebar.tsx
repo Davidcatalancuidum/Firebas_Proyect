@@ -3,8 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useState } from 'react'; // Added useState
-import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks, Award, CheckCircle, Star, Zap } from 'lucide-react'; // Added plan icons
+import React, { useState } from 'react'; 
+import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks, Award, CheckCircle, Star, Zap, UserCircle as UserCircleIcon } from 'lucide-react'; 
 import { 
   Sidebar, 
   SidebarHeader, 
@@ -25,11 +25,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  // DialogTrigger, // Not using DialogTrigger directly with state control
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Plan data structure (similar to planes/page.tsx)
 interface PlanFeature {
   text: string;
   included: boolean;
@@ -85,9 +83,9 @@ const plansData: Plan[] = [
     href: '/planes#estandar',
   },
   {
-    id: 'pro', // Changed to 'pro' to match original ID if necessary, or 'premium' if it was an intended change
+    id: 'pro', 
     icon: Zap,
-    title: 'Premium', // Title kept as Premium as per previous change
+    title: 'Premium', 
     price: '10€',
     priceDetails: 'por mes',
     description: 'Todas las funcionalidades para profesionales y empresas.',
@@ -99,7 +97,7 @@ const plansData: Plan[] = [
       { text: 'Soporte VIP 24/7', included: true },
     ],
     buttonText: 'Más sobre Premium',
-    href: '/planes#pro', // or #premium
+    href: '/planes#pro', 
   },
 ];
 
@@ -111,6 +109,7 @@ export default function AppSidebar() {
   const menuItems = [
     { href: '/', label: 'Tareas', icon: ListChecks },
     { href: '/workers', label: 'Trabajadores', icon: Users },
+    { href: '/perfil', label: 'Mi Perfil', icon: UserCircleIcon },
   ];
 
   const supportItems = [
@@ -123,7 +122,6 @@ export default function AppSidebar() {
     <Sidebar side="left" variant="sidebar" collapsible="icon">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <Link href="/" className="flex items-center gap-2">
-          {/* Placeholder Logo */}
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-primary">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
@@ -206,7 +204,7 @@ export default function AppSidebar() {
       </SidebarFooter>
 
       <Dialog open={isProDialogOpen} onOpenChange={setIsProDialogOpen}>
-        <DialogContent className="sm:max-w-2xl p-0"> {/* Increased width, removed padding for custom layout */}
+        <DialogContent className="sm:max-w-2xl p-0"> 
           <DialogHeader className="p-6 pb-4">
             <DialogTitle className="text-2xl font-bold">Elige tu Plan Perfecto</DialogTitle>
             <DialogDescription>
