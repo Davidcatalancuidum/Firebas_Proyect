@@ -9,9 +9,9 @@ import type { Worker } from '@/types/worker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Sparkles, Loader2, Users } from 'lucide-react';
+import { PlusCircle, Sparkles, Loader2, Users, Tag } from 'lucide-react';
 import { suggestTaskCategory, type SuggestTaskCategoryInput } from '@/ai/flows/suggest-task-category';
 import { Badge } from './ui/badge';
 import { useToast } from "@/hooks/use-toast";
@@ -96,7 +96,7 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
   const onSubmit: SubmitHandler<TaskFormData> = (data) => {
     const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
     onAddTask(data.name, tagsArray, data.assignedToId);
-    reset(); // Resets to defaultValues
+    reset(); 
     setSuggestedCategories([]);
   };
 
@@ -109,12 +109,13 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
   };
 
   return (
-    <Card className="mb-6 shadow-lg">
+    <Card className="shadow-lg h-full">
       <CardHeader>
         <CardTitle className="flex items-center text-xl">
           <PlusCircle className="mr-2 h-6 w-6 text-primary" />
           Añadir Nueva Tarea
         </CardTitle>
+        <CardDescription>Planifica tu próximo movimiento.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -130,7 +131,7 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
             {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
             
             {isSuggesting && (
-              <div className="mt-2 flex items-center text-sm text-muted-foreground">
+              <div className="mt-2 flex items-center text-xs text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Generando sugerencias IA...
               </div>
@@ -141,11 +142,11 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
                   <Sparkles className="h-3 w-3 mr-1 text-primary" />
                   Sugerencias IA (Etiquetas):
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {suggestedCategories.map((cat, index) => (
                     <Badge
                       key={index}
-                      variant="outline"
+                      variant="secondary" // Changed from outline to match darker theme better
                       onClick={() => addSuggestedTag(cat)}
                       className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
                       role="button"
@@ -161,7 +162,10 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="tags" className="block text-sm font-medium mb-1">Etiquetas (separadas por comas)</Label>
+            <Label htmlFor="tags" className="block text-sm font-medium mb-1">
+                <Tag className="inline h-4 w-4 mr-1.5 text-muted-foreground"/>
+                Etiquetas (separadas por comas)
+            </Label>
             <Input
               id="tags"
               {...register('tags')}
@@ -171,38 +175,38 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="assignedToId" className="block text-sm font-medium mb-1">Asignar a</Label>
-            <div className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-muted-foreground" />
-                <Controller
-                    name="assignedToId"
-                    control={control}
-                    render={({ field }) => (
-                        <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            disabled={!isClient || workers.length === 0}
-                        >
-                            <SelectTrigger className="w-full text-base">
-                                <SelectValue placeholder={
-                                    !isClient ? "Cargando..." :
-                                    workers.length === 0 ? "No hay trabajadores disponibles" :
-                                    "Seleccionar trabajador"
-                                } />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {isClient && workers.length > 0 ? workers.map(worker => (
-                                    <SelectItem key={worker.id} value={worker.id}>
-                                        {worker.name} ({worker.department})
-                                    </SelectItem>
-                                )) : (
-                                  isClient && <SelectItem value="no-workers" disabled>No hay trabajadores para asignar</SelectItem>
-                                )}
-                            </SelectContent>
-                        </Select>
-                    )}
-                />
-            </div>
+            <Label htmlFor="assignedToId" className="block text-sm font-medium mb-1">
+                <Users className="inline h-4 w-4 mr-1.5 text-muted-foreground"/>
+                Asignar a
+            </Label>
+            <Controller
+                name="assignedToId"
+                control={control}
+                render={({ field }) => (
+                    <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={!isClient || workers.length === 0}
+                    >
+                        <SelectTrigger className="w-full text-base">
+                            <SelectValue placeholder={
+                                !isClient ? "Cargando..." :
+                                workers.length === 0 ? "No hay trabajadores disponibles" :
+                                "Seleccionar trabajador"
+                            } />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {isClient && workers.length > 0 ? workers.map(worker => (
+                                <SelectItem key={worker.id} value={worker.id}>
+                                    {worker.name} ({worker.department})
+                                </SelectItem>
+                            )) : (
+                              isClient && <SelectItem value="no-workers" disabled>No hay trabajadores para asignar</SelectItem>
+                            )}
+                        </SelectContent>
+                    </Select>
+                )}
+            />
             {errors.assignedToId && <p className="text-sm text-destructive mt-1">{errors.assignedToId.message}</p>}
           </div>
 
@@ -215,4 +219,3 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
     </Card>
   );
 }
-

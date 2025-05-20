@@ -85,8 +85,6 @@ export default function WorkerManagementPage() {
   const handleDeleteWorker = useCallback((workerId: string) => {
     const workerToDelete = workers.find(w => w.id === workerId);
     setWorkers(prevWorkers => prevWorkers.filter(worker => worker.id !== workerId));
-    // Note: This doesn't unsassign the worker from existing tasks automatically.
-    // That would require more complex logic to update tasks in localStorage.
     toast({
       title: "Trabajador Eliminado",
       description: `${workerToDelete?.name || 'El trabajador'} ha sido eliminado. Las tareas previamente asignadas no se reasignarán automáticamente.`,
@@ -106,31 +104,24 @@ export default function WorkerManagementPage() {
 
   if (!isMounted) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]"> {/* Adjust height for header */}
         <Users className="h-12 w-12 animate-pulse text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center justify-center">
-          <Users className="h-10 w-10 mr-3 text-primary" />
-          Gestión de Trabajadores
-        </h1>
-        <p className="text-lg text-muted-foreground mt-1">
-          Añade y organiza a los miembros de tu equipo.
-        </p>
-      </header>
-
-      <main>
-        <Card className="mb-6 shadow-lg">
+    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+      <div className="lg:col-span-1">
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-xl">
               <PlusCircle className="mr-2 h-6 w-6 text-primary" />
               Añadir Nuevo Trabajador
             </CardTitle>
+             <CardDescription>
+              Completa los datos para registrar un nuevo miembro del equipo.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(handleAddWorker)} className="space-y-4">
@@ -162,25 +153,25 @@ export default function WorkerManagementPage() {
             </form>
           </CardContent>
         </Card>
+      </div>
 
+      <div className="lg:col-span-2">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-xl">
               <Building className="mr-2 h-6 w-6 text-primary" />
-              Lista de Trabajadores por Departamento
+              Lista de Trabajadores
             </CardTitle>
-             {workers.length === 0 && (
-                <CardDescription className="mt-2">
-                    Aún no hay trabajadores. Añade uno para empezar.
-                </CardDescription>
-            )}
+             <CardDescription>
+                {workers.length === 0 ? "Aún no hay trabajadores. Añade uno para empezar." : "Trabajadores agrupados por departamento."}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {workers.length > 0 ? (
               <Accordion type="multiple" className="w-full space-y-2">
-                {Object.entries(workersByDepartment).map(([department, deptWorkers]) => (
-                  <AccordionItem value={department} key={department} className="bg-muted/30 rounded-md border px-2">
-                    <AccordionTrigger className="text-lg font-semibold hover:no-underline py-3 px-4">
+                {Object.entries(workersByDepartment).sort((a,b) => a[0].localeCompare(b[0])).map(([department, deptWorkers]) => (
+                  <AccordionItem value={department} key={department} className="bg-card-foreground/5 rounded-md border px-2">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline py-3 px-4 text-foreground">
                         <div className="flex items-center">
                             <Building size={20} className="mr-3 text-primary"/>
                             {department} ({deptWorkers.length})
@@ -188,9 +179,9 @@ export default function WorkerManagementPage() {
                     </AccordionTrigger>
                     <AccordionContent className="pt-0 pb-3 px-4">
                       <ul className="space-y-2">
-                        {deptWorkers.map(worker => (
-                          <li key={worker.id} className="flex justify-between items-center p-2 rounded-md hover:bg-accent/50">
-                            <span className="text-sm">{worker.name}</span>
+                        {deptWorkers.sort((a,b) => a.name.localeCompare(b.name)).map(worker => (
+                          <li key={worker.id} className="flex justify-between items-center p-3 rounded-md hover:bg-accent/10">
+                            <span className="text-sm text-foreground">{worker.name}</span>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteWorker(worker.id)} aria-label={`Eliminar ${worker.name}`}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -204,21 +195,15 @@ export default function WorkerManagementPage() {
             ) : (
               !isMounted ? 
                 <p className="text-muted-foreground">Cargando trabajadores...</p> :
-                null // Description already handles this for 0 workers after mount
-            )}
-            {isMounted && workers.length === 0 && (
-                 <div className="text-center py-6">
+                <div className="text-center py-6">
                     <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-muted-foreground">No hay trabajadores registrados.</p>
-                    <p className="text-sm text-muted-foreground">Añade un trabajador usando el formulario de arriba.</p>
+                    <p className="text-sm text-muted-foreground">Añade un trabajador usando el formulario de la izquierda.</p>
                 </div>
             )}
           </CardContent>
         </Card>
-      </main>
-      <footer className="mt-12 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Día Maestro. Gestión de Equipos.</p>
-      </footer>
+      </div>
     </div>
   );
 }

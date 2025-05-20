@@ -6,9 +6,11 @@ import type { Task } from '@/types/task';
 import type { Worker } from '@/types/worker';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
-import Navbar from './Navbar';
 import { useToast } from "@/hooks/use-toast";
-import { ListChecks } from 'lucide-react';
+import { ListChecks, CalendarDays, CheckCircle, Briefcase } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar'; // ShadCN Calendar
+
 
 const LOCAL_STORAGE_KEY_TASKS = 'diaMaestroTasks';
 const LOCAL_STORAGE_KEY_WORKERS = 'diaMaestroWorkers';
@@ -19,6 +21,8 @@ export default function DiaMaestroPage() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+  const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,9 +60,6 @@ export default function DiaMaestroPage() {
     }
   }, [tasks, isMounted, toast]);
   
-  // Note: Workers are managed on their own page, so we don't save them from here.
-  // We only load them for use in task assignment.
-
   const handleAddTask = useCallback((name: string, tags: string[], assignedToId?: string) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
@@ -84,7 +85,7 @@ export default function DiaMaestroPage() {
       title: "Tarea Añadida",
       description: `"${name}" ha sido añadida a tu lista${assignedMessagePart}.`,
     });
-  }, [tasks, workers, toast]); // Added workers to dependency array
+  }, [tasks, workers, toast]);
 
   const handleToggleComplete = useCallback((id: string) => {
     setTasks(prevTasks =>
@@ -122,30 +123,103 @@ export default function DiaMaestroPage() {
     });
   }, []);
 
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const pendingTasks = tasks.length - completedTasks;
+
   if (!isMounted) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]"> {/* Adjust height for header */}
         <ListChecks className="h-12 w-12 animate-pulse text-primary" />
       </div>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center justify-center">
-            <ListChecks className="h-10 w-10 mr-3 text-primary" />
-            Día Maestro
-          </h1>
-          <p className="text-lg text-muted-foreground mt-1">
-            Domina tu día, una tarea a la vez.
-          </p>
-        </header>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* Overview Widgets */}
+      <Card className="lg:col-span-1 xl:col-span-1">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-sm font-medium">Total Tareas</CardDescription>
+          <CardTitle className="text-4xl">{tasks.length}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-muted-foreground">
+             {completedTasks} completadas, {pendingTasks} pendientes
+          </div>
+        </CardContent>
+      </Card>
 
-        <main>
-          <TaskForm onAddTask={handleAddTask} workers={workers} />
+      <Card className="lg:col-span-1 xl:col-span-1">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-sm font-medium">Tareas Completadas</CardDescription>
+          <CardTitle className="text-4xl">{completedTasks}</CardTitle>
+        </CardHeader>
+        <CardContent>
+           <div className="text-xs text-muted-foreground">
+            +{Math.round((completedTasks/tasks.length || 0)*100)}% del total
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card className="lg:col-span-1 xl:col-span-1">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-sm font-medium">Tareas Pendientes</CardDescription>
+          <CardTitle className="text-4xl">{pendingTasks}</CardTitle>
+        </CardHeader>
+        <CardContent>
+           <div className="text-xs text-muted-foreground">
+             Mantén el ritmo
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card className="lg:col-span-1 xl:col-span-1">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-sm font-medium">Trabajadores Activos</CardDescription>
+          <CardTitle className="text-4xl">{workers.length}</CardTitle>
+        </CardHeader>
+        <CardContent>
+           <div className="text-xs text-muted-foreground">
+            Gestiona tu equipo
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar Widget - Placeholder based on image */}
+      <Card className="md:col-span-2 lg:col-span-2 xl:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <CalendarDays className="mr-2 h-6 w-6 text-primary" />
+            Calendario
+          </CardTitle>
+          <CardDescription>Vista general del mes</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center p-2 sm:p-4">
+          <Calendar
+            mode="single"
+            selected={calendarDate}
+            onSelect={setCalendarDate}
+            className="rounded-md border bg-card"
+            disabled={(date) => date < new Date("1900-01-01") || date > new Date("2300-12-31")}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Task Form Widget */}
+      <div className="md:col-span-2 lg:col-span-2 xl:col-span-2">
+        <TaskForm onAddTask={handleAddTask} workers={workers} />
+      </div>
+      
+      {/* Task List Widget */}
+      <Card className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ListChecks className="mr-2 h-6 w-6 text-primary" />
+            Lista de Tareas
+          </CardTitle>
+          <CardDescription>Arrastra para reordenar tus tareas.</CardDescription>
+        </CardHeader>
+        <CardContent>
           <TaskList 
             tasks={tasks}
             workers={workers}
@@ -153,12 +227,8 @@ export default function DiaMaestroPage() {
             onDeleteTask={handleDeleteTask}
             onReorderTasks={handleReorderTasks} 
           />
-        </main>
-        
-        <footer className="mt-12 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Día Maestro. Hecho con esmero.</p>
-        </footer>
-      </div>
-    </>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
