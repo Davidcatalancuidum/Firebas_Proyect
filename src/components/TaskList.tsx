@@ -1,6 +1,6 @@
 "use client";
 
-import type React from 'react';
+import React from 'react'; // Added this line
 import type { Task } from '@/types/task';
 import TaskItem from './TaskItem';
 
