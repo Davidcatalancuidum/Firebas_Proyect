@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark"> {/* Apply dark class globally if you want dark mode by default */}
+    <html lang="es" className="dark">
       <body className={cn(inter.variable, "font-sans antialiased bg-background text-foreground")}>
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
