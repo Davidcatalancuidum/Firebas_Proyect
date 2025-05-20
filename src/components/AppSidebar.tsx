@@ -14,7 +14,7 @@ import {
   SidebarMenuButton, 
   SidebarGroup,
   SidebarGroupLabel
-} from '@/components/ui/sidebar'; // Assuming sidebar components are structured like this
+} from '@/components/ui/sidebar'; 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -26,10 +26,9 @@ export default function AppSidebar() {
     { href: '/workers', label: 'Trabajadores', icon: Users },
   ];
 
-  // Support items are placeholders based on the image, can be developed later
   const supportItems = [
-    { href: '#', label: 'Ayuda', icon: HelpCircle },
-    { href: '#', label: 'Integraciones', icon: Settings }, // Re-using Settings for 'Intergration'
+    { href: '/ayuda', label: 'Ayuda', icon: HelpCircle },
+    { href: '/integraciones', label: 'Integraciones', icon: Settings },
   ];
 
   return (
@@ -79,8 +78,13 @@ export default function AppSidebar() {
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
+                  isActive={pathname === item.href}
                   tooltip={{ children: item.label, side: 'right', align: 'center' }}
-                   className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                   className={cn(
+                    pathname === item.href ? 
+                    "bg-sidebar-accent text-sidebar-accent-foreground" : 
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
                 >
                   <Link href={item.href} className="flex items-center gap-3">
                     <item.icon className="h-5 w-5 flex-shrink-0" />
