@@ -69,8 +69,9 @@ export default function WorkerManagementPage() {
   }, [workers, isMounted, toast]);
 
   const handleAddWorker: SubmitHandler<WorkerFormData> = useCallback((data) => {
+    const newWorkerId = 'worker-' + Date.now().toString(36) + Math.random().toString(36).substring(2);
     const newWorker: Worker = {
-      id: crypto.randomUUID(),
+      id: newWorkerId,
       name: data.name,
       department: data.department,
     };
@@ -207,3 +208,4 @@ export default function WorkerManagementPage() {
     </div>
   );
 }
+

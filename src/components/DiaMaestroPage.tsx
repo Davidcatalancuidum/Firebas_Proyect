@@ -7,7 +7,7 @@ import type { Worker } from '@/types/worker';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
 import { useToast } from "@/hooks/use-toast";
-import { ListChecks, CalendarDays as CalendarDaysIconLucide, CheckCircle, Briefcase } from 'lucide-react';
+import { ListChecks, CalendarDays as CalendarDaysIconLucide } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { parseISO, format } from 'date-fns';
@@ -67,8 +67,9 @@ export default function DiaMaestroPage() {
   }, [tasks, isMounted, toast]);
   
   const handleAddTask = useCallback((name: string, tags: string[], assignedToId?: string, dueDate?: string) => {
+    const newTaskId = 'task-' + Date.now().toString(36) + Math.random().toString(36).substring(2);
     const newTask: Task = {
-      id: crypto.randomUUID(),
+      id: newTaskId,
       name,
       tags,
       completed: false,
@@ -220,12 +221,12 @@ export default function DiaMaestroPage() {
           </CardTitle>
           <CardDescription>Vista general del mes. Pasa el ratón sobre un día para ver sus tareas.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center p-2 sm:p-4">
+        <CardContent className="flex flex-col p-2 sm:p-4">
           <Calendar
             mode="single"
             selected={calendarDate}
             onSelect={setCalendarDate}
-            className="rounded-md border bg-card"
+            className="rounded-md border bg-card w-full"
             locale={es}
             modifiers={{ hasTasks: taskDueDates }}
             modifiersClassNames={{
