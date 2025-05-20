@@ -157,7 +157,7 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="assignedTo" className="block text-sm font-medium mb-1">Asignar a (opcional)</Label>
+            <Label htmlFor="assignedTo" className="block text-sm font-medium mb-1">Asignar a</Label>
             <div className="flex items-center">
               <UserPlus className="h-5 w-5 mr-2 text-muted-foreground" />
               <Input
