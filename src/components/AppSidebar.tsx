@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks, Award } from 'lucide-react';
+import React, { useState } from 'react'; // Added useState
+import { Home, Users, Settings, HelpCircle, ShieldCheck, ListChecks, Award, CheckCircle, Star, Zap } from 'lucide-react'; // Added plan icons
 import { 
   Sidebar, 
   SidebarHeader, 
@@ -17,9 +18,95 @@ import {
 } from '@/components/ui/sidebar'; 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  // DialogTrigger, // Not using DialogTrigger directly with state control
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Plan data structure (similar to planes/page.tsx)
+interface PlanFeature {
+  text: string;
+  included: boolean;
+}
+
+interface Plan {
+  id: string;
+  icon: React.ElementType;
+  title: string;
+  price: string;
+  priceDetails: string;
+  description: string;
+  features: PlanFeature[];
+  buttonText: string;
+  highlight?: boolean;
+  href: string;
+}
+
+const plansData: Plan[] = [
+  {
+    id: 'basic',
+    icon: CheckCircle,
+    title: 'Basico',
+    price: '1€',
+    priceDetails: 'por mes',
+    description: 'Ideal para empezar y organizar tus tareas personales.',
+    features: [
+      { text: 'Hasta 50 tareas', included: true },
+      { text: 'Gestión de trabajadores (hasta 2)', included: true },
+      { text: 'Calendario de tareas', included: true },
+      { text: 'Soporte por email', included: false },
+      { text: 'Integraciones básicas', included: false },
+    ],
+    buttonText: 'Más sobre Basico',
+    href: '/planes#basic',
+  },
+  {
+    id: 'estandar',
+    icon: Star,
+    title: 'Estándar',
+    price: '5€',
+    priceDetails: 'por mes',
+    description: 'Perfecto para pequeños equipos y mayor productividad.',
+    features: [
+      { text: 'Tareas ilimitadas', included: true },
+      { text: 'Gestión de trabajadores (hasta 10)', included: true },
+      { text: 'Calendario avanzado con recordatorios', included: true },
+      { text: 'Soporte prioritario por email', included: true },
+      { text: 'Integraciones (Próximamente)', included: false },
+    ],
+    buttonText: 'Elegir Estándar',
+    highlight: true,
+    href: '/planes#estandar',
+  },
+  {
+    id: 'pro', // Changed to 'pro' to match original ID if necessary, or 'premium' if it was an intended change
+    icon: Zap,
+    title: 'Premium', // Title kept as Premium as per previous change
+    price: '10€',
+    priceDetails: 'por mes',
+    description: 'Todas las funcionalidades para profesionales y empresas.',
+    features: [
+      { text: 'Todo en Estándar', included: true },
+      { text: 'Gestión de trabajadores (ilimitados)', included: true },
+      { text: 'Informes y estadísticas (Próximamente)', included: true },
+      { text: 'Acceso API (Próximamente)', included: true },
+      { text: 'Soporte VIP 24/7', included: true },
+    ],
+    buttonText: 'Más sobre Premium',
+    href: '/planes#pro', // or #premium
+  },
+];
+
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const [isProDialogOpen, setIsProDialogOpen] = useState(false);
 
   const menuItems = [
     { href: '/', label: 'Tareas', icon: ListChecks },
@@ -102,6 +189,7 @@ export default function AppSidebar() {
         <Button 
           variant="outline" 
           className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground group-data-[collapsible=icon]:hidden"
+          onClick={() => setIsProDialogOpen(true)}
         >
           <ShieldCheck className="mr-2 h-4 w-4" />
           Conviértete en Pro
@@ -111,10 +199,70 @@ export default function AppSidebar() {
           size="icon"
           className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground hidden group-data-[collapsible=icon]:flex justify-center items-center"
           aria-label="Conviértete en Pro"
+          onClick={() => setIsProDialogOpen(true)}
         >
           <ShieldCheck className="h-5 w-5" />
         </Button>
       </SidebarFooter>
+
+      <Dialog open={isProDialogOpen} onOpenChange={setIsProDialogOpen}>
+        <DialogContent className="sm:max-w-2xl p-0"> {/* Increased width, removed padding for custom layout */}
+          <DialogHeader className="p-6 pb-4">
+            <DialogTitle className="text-2xl font-bold">Elige tu Plan Perfecto</DialogTitle>
+            <DialogDescription>
+              Desbloquea más funcionalidades y lleva tu productividad al siguiente nivel.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-y-auto px-6 pb-6 space-y-4">
+            {plansData.map((plan) => (
+              <Card 
+                key={plan.id} 
+                className={`flex flex-col ${plan.highlight ? 'border-primary ring-2 ring-primary shadow-primary/20' : 'shadow-md'}`}
+              >
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <CardTitle className="text-xl font-semibold flex items-center">
+                      <plan.icon className={`mr-2 h-6 w-6 ${plan.highlight ? 'text-primary' : 'text-muted-foreground'}`} />
+                      {plan.title}
+                    </CardTitle>
+                    {plan.highlight && (
+                       <span className="bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full">Popular</span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-extrabold text-foreground">{plan.price}</span>
+                    <span className="ml-1 text-lg font-medium text-muted-foreground">{plan.priceDetails}</span>
+                  </div>
+                  <CardDescription className="pt-2 text-xs min-h-[30px]">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-2">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center text-xs">
+                        <CheckCircle 
+                          className={`h-3.5 w-3.5 mr-2 flex-shrink-0 ${feature.included ? 'text-primary' : 'text-muted-foreground/50'}`} 
+                        />
+                        <span className={feature.included ? 'text-foreground' : 'text-muted-foreground/70 line-through'}>
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="mt-auto pt-4">
+                  <DialogClose asChild>
+                    <Link href={plan.href} passHref legacyBehavior>
+                      <Button asChild className="w-full text-sm py-2.5" variant={plan.highlight ? 'default' : 'outline'}>
+                        <a>{plan.buttonText}</a>
+                      </Button>
+                    </Link>
+                  </DialogClose>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
