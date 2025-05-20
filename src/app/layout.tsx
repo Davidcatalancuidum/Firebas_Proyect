@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning> {/* suppressHydrationWarning can be useful with theme providers */}
+    <html lang="es" suppressHydrationWarning>
       <body className={cn(inter.variable, "font-sans antialiased bg-background text-foreground")}>
         <ThemeProvider>
           <SidebarProvider defaultOpen={true}>
