@@ -9,45 +9,37 @@ body {
 
 @layer base {
   :root {
-    --background: 220 17% 10%; /* Dark Blue-Gray */
-    --foreground: 210 40% 96%; /* Light Gray */
-
-    --card: 220 17% 15%; /* Slightly Lighter Dark Blue-Gray */
-    --card-foreground: 210 40% 96%;
-
-    --popover: 220 17% 12%;
-    --popover-foreground: 210 40% 96%;
-
-    --primary: 173 70% 45%; /* Bright Teal/Cyan */
-    --primary-foreground: 220 17% 10%; /* Dark for text on primary */
-
-    --secondary: 210 15% 30%; /* Muted Blue-Gray */
-    --secondary-foreground: 210 40% 96%;
-
-    --muted: 210 15% 25%;
-    --muted-foreground: 210 20% 65%;
-
-    --accent: 173 60% 55%; /* Lighter Teal/Cyan for accents */
-    --accent-foreground: 220 17% 10%;
-
-    --destructive: 0 63% 31%;
+    --background: 0 0% 100%; /* White */
+    --foreground: 240 10% 3.9%; /* Dark Gray for text */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 173 70% 45%; /* Bright Teal/Cyan - consistent for both modes */
+    --primary-foreground: 0 0% 98%; /* Light text on primary */
+    --secondary: 240 4.8% 95.9%; /* Light Gray */
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 173 60% 90%; /* Lighter Teal/Cyan for accents in light mode */
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 220 17% 25%; /* Border color */
-    --input: 220 17% 20%; /* Input background */
-    --ring: 173 70% 55%; /* Ring color (primary variant) */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 173 70% 45%; 
     
     --radius: 0.5rem;
 
-    /* Sidebar specific theme variables */
-    --sidebar-background: 220 17% 12%; /* Slightly darker than cards */
-    --sidebar-foreground: 210 40% 90%;
+    /* Sidebar light theme variables */
+    --sidebar-background: 240 4.8% 97%; 
+    --sidebar-foreground: 240 10% 3.9%;
     --sidebar-primary: 173 70% 45%;
-    --sidebar-primary-foreground: 220 17% 10%;
-    --sidebar-accent: 173 60% 35%; /* Accent for hover/active items */
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 220 17% 20%;
-    --sidebar-ring: 173 70% 55%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 173 60% 90%; 
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 88%;
+    --sidebar-ring: 173 70% 45%;
 
     --chart-1: 173 70% 45%;
     --chart-2: 200 70% 50%;
@@ -56,37 +48,38 @@ body {
     --chart-5: 260 70% 65%;
   }
 
-  /* Fallback for systems that prefer light mode but app is dark */
   .dark {
-    --background: 220 17% 10%;
-    --foreground: 210 40% 96%;
-    --card: 220 17% 15%;
+    --background: 220 17% 10%; 
+    --foreground: 210 40% 96%; 
+    --card: 220 17% 15%; 
     --card-foreground: 210 40% 96%;
     --popover: 220 17% 12%;
     --popover-foreground: 210 40% 96%;
-    --primary: 173 70% 45%;
-    --primary-foreground: 220 17% 10%;
-    --secondary: 210 15% 30%;
+    --primary: 173 70% 45%; 
+    --primary-foreground: 220 17% 10%; 
+    --secondary: 210 15% 30%; 
     --secondary-foreground: 210 40% 96%;
     --muted: 210 15% 25%;
     --muted-foreground: 210 20% 65%;
-    --accent: 173 60% 55%;
+    --accent: 173 60% 55%; 
     --accent-foreground: 220 17% 10%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 17% 25%;
-    --input: 220 17% 20%;
-    --ring: 173 70% 55%;
+    --border: 220 17% 25%; 
+    --input: 220 17% 20%; 
+    --ring: 173 70% 55%; 
     
+    /* Sidebar dark theme variables */
     --sidebar-background: 220 17% 12%;
     --sidebar-foreground: 210 40% 90%;
     --sidebar-primary: 173 70% 45%;
     --sidebar-primary-foreground: 220 17% 10%;
-    --sidebar-accent: 173 60% 35%;
+    --sidebar-accent: 173 60% 35%; 
     --sidebar-accent-foreground: 210 40% 96%;
     --sidebar-border: 220 17% 20%;
     --sidebar-ring: 173 70% 55%;
 
+    /* Chart colors can be adjusted for dark if needed, reusing for now */
     --chart-1: 173 70% 45%;
     --chart-2: 200 70% 50%;
     --chart-3: 220 60% 55%;

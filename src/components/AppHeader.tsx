@@ -5,6 +5,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Bell, Search } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 interface AppHeaderProps {
   title: string;
@@ -22,6 +23,7 @@ export default function AppHeader({ title }: AppHeaderProps) {
         <Button variant="ghost" size="icon" className="rounded-full" aria-label="Buscar">
           <Search className="h-5 w-5" />
         </Button>
+        <ThemeToggleButton /> 
         {/* Placeholder for Notifications - can be developed later */}
         <Button variant="ghost" size="icon" className="rounded-full" aria-label="Notificaciones">
           <Bell className="h-5 w-5" />

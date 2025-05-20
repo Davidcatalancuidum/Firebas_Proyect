@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -5,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/contexts/ThemeProvider';
 
 const inter = Inter({ 
   variable: '--font-inter', 
@@ -22,17 +24,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es" suppressHydrationWarning> {/* suppressHydrationWarning can be useful with theme providers */}
       <body className={cn(inter.variable, "font-sans antialiased bg-background text-foreground")}>
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <div className="flex flex-1 flex-col">
-              {children}
+        <ThemeProvider>
+          <SidebarProvider defaultOpen={true}>
+            <div className="flex min-h-screen w-full">
+              <AppSidebar />
+              <div className="flex flex-1 flex-col">
+                {children}
+              </div>
             </div>
-          </div>
-        </SidebarProvider>
-        <Toaster />
+          </SidebarProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
