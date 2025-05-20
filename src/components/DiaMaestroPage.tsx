@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ListChecks, CalendarDays as CalendarDaysIconLucide, CheckCircle, Briefcase } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
-import { parseISO } from 'date-fns';
+import { parseISO, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const LOCAL_STORAGE_KEY_TASKS = 'diaMaestroTasks';
@@ -23,6 +23,7 @@ export default function DiaMaestroPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
+  const [hoveredDayInfo, setHoveredDayInfo] = useState<{ date: Date; tasks: Task[] } | null>(null);
 
 
   useEffect(() => {
@@ -33,7 +34,6 @@ export default function DiaMaestroPage() {
         const parsedTasks = JSON.parse(storedTasks) as Task[];
         setTasks(parsedTasks.map(task => ({
           ...task,
-          // Ensure dueDate is handled correctly if it exists
           dueDate: task.dueDate ? task.dueDate : undefined,
         })));
       }
@@ -86,11 +86,10 @@ export default function DiaMaestroPage() {
       }
     }
     if (dueDate) {
-      messageParts.push(`con fecha de vencimiento ${dueDate}`);
+      messageParts.push(`con fecha de vencimiento ${format(parseISO(dueDate), "PPP", { locale: es })}`);
     }
 
     const additionalInfo = messageParts.length > 0 ? ` (${messageParts.join(', ')})` : '';
-
 
     toast({
       title: "Tarea Añadida",
@@ -142,6 +141,18 @@ export default function DiaMaestroPage() {
       .filter(task => task.dueDate)
       .map(task => parseISO(task.dueDate!));
   }, [tasks]);
+
+  const handleDayMouseEnter = useCallback((day: Date) => {
+    if (!day || !isMounted) return;
+    const formattedHoverDate = format(day, 'yyyy-MM-dd');
+    const tasksForDay = tasks.filter(task => task.dueDate === formattedHoverDate);
+    setHoveredDayInfo({ date: day, tasks: tasksForDay });
+  }, [tasks, isMounted]);
+
+  const handleDayMouseLeave = useCallback(() => {
+    if (!isMounted) return;
+    setHoveredDayInfo(null);
+  }, [isMounted]);
 
   if (!isMounted) {
     return (
@@ -207,9 +218,9 @@ export default function DiaMaestroPage() {
             <CalendarDaysIconLucide className="mr-2 h-6 w-6 text-primary" />
             Calendario
           </CardTitle>
-          <CardDescription>Vista general del mes. Días con tareas están marcados.</CardDescription>
+          <CardDescription>Vista general del mes. Pasa el ratón sobre un día para ver sus tareas.</CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-center p-2 sm:p-4">
+        <CardContent className="flex flex-col items-center p-2 sm:p-4">
           <Calendar
             mode="single"
             selected={calendarDate}
@@ -221,7 +232,32 @@ export default function DiaMaestroPage() {
               hasTasks: 'day-with-tasks-indicator',
             }}
             disabled={(date) => date < new Date("1900-01-01") || date > new Date("2300-12-31")}
+            onDayMouseEnter={handleDayMouseEnter}
+            onDayMouseLeave={handleDayMouseLeave}
           />
+          {hoveredDayInfo && isMounted && (
+            <div className="mt-4 pt-4 border-t w-full text-left">
+              <h4 className="font-semibold mb-2 text-sm text-foreground">
+                Tareas para el {format(hoveredDayInfo.date, "PPP", { locale: es })}:
+              </h4>
+              {hoveredDayInfo.tasks.length > 0 ? (
+                <ul className="space-y-1">
+                  {hoveredDayInfo.tasks.map(task => (
+                    <li key={task.id} className="text-xs text-muted-foreground flex items-center">
+                       <ListChecks size={14} className="mr-2 text-primary flex-shrink-0"/> 
+                       {task.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {hoveredDayInfo.date.toDateString() === new Date().toDateString()
+                    ? "No hay tareas para hoy."
+                    : "No hay tareas para este día."}
+                </p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -250,3 +286,4 @@ export default function DiaMaestroPage() {
     </div>
   );
 }
+
