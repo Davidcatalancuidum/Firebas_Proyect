@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -101,4 +102,30 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom style for calendar days with tasks */
+.day-with-tasks-indicator {
+  position: relative;
+  font-weight: bold; /* Example: make the day number bold */
+}
+
+.day-with-tasks-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: 5px; /* Adjust vertical position */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px; /* Size of the dot */
+  height: 5px; /* Size of the dot */
+  border-radius: 50%;
+  background-color: hsl(var(--primary)); /* Color of the dot, using primary color */
+}
+
+/* Ensure the today marker and task marker don't overlap badly */
+.rdp-day_today:not(.rdp-day_outside).day-with-tasks-indicator::after {
+  bottom: 3px; /* Slightly adjust if it's also today */
+}
+.rdp-day_selected.day-with-tasks-indicator::after {
+  background-color: hsl(var(--primary-foreground)); /* Change dot color if selected for visibility */
 }

@@ -7,9 +7,11 @@ import type { Worker } from '@/types/worker';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { GripVertical, Trash2, UserCircle2, Tag } from 'lucide-react';
+import { GripVertical, Trash2, UserCircle2, Tag, CalendarDays } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface TaskItemProps {
   task: Task;
@@ -32,6 +34,10 @@ export default function TaskItem({
 }: TaskItemProps) {
   
   const assignedWorker = task.assignedToId ? workers.find(w => w.id === task.assignedToId) : null;
+
+  const formattedDueDate = task.dueDate 
+    ? format(parseISO(task.dueDate), "dd MMM yyyy", { locale: es }) 
+    : null;
 
   return (
     <Card 
@@ -70,8 +76,15 @@ export default function TaskItem({
             </div>
           )}
 
+          {formattedDueDate && (
+            <div className="flex items-center text-xs text-muted-foreground">
+              <CalendarDays className="h-4 w-4 mr-1.5 flex-shrink-0 text-accent" />
+              <span>Vence: {formattedDueDate}</span>
+            </div>
+          )}
+
           {task.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 items-center">
+            <div className="flex flex-wrap gap-1.5 items-center mt-1">
               <Tag className="h-3.5 w-3.5 text-muted-foreground/80"/>
               {task.tags.map((tag, index) => (
                 <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">

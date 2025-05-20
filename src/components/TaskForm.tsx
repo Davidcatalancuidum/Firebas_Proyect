@@ -11,21 +11,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Sparkles, Loader2, Users, Tag } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { PlusCircle, Sparkles, Loader2, Users, Tag, CalendarIcon } from 'lucide-react';
 import { suggestTaskCategory, type SuggestTaskCategoryInput } from '@/ai/flows/suggest-task-category';
 import { Badge } from './ui/badge';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
 
 const taskFormSchema = z.object({
   name: z.string().min(1, 'El nombre de la tarea es obligatorio'),
   tags: z.string().optional(),
   assignedToId: z.string().optional(),
+  dueDate: z.date().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
-  onAddTask: (name: string, tags: string[], assignedToId?: string) => void;
+  onAddTask: (name: string, tags: string[], assignedToId?: string, dueDate?: string) => void;
   workers: Worker[];
 }
 
@@ -47,6 +54,7 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
       name: '',
       tags: '',
       assignedToId: undefined,
+      dueDate: undefined,
     }
   });
   const { toast } = useToast();
@@ -95,7 +103,8 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
 
   const onSubmit: SubmitHandler<TaskFormData> = (data) => {
     const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-    onAddTask(data.name, tagsArray, data.assignedToId);
+    const dueDateString = data.dueDate ? format(data.dueDate, 'yyyy-MM-dd') : undefined;
+    onAddTask(data.name, tagsArray, data.assignedToId, dueDateString);
     reset(); 
     setSuggestedCategories([]);
   };
@@ -146,7 +155,7 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
                   {suggestedCategories.map((cat, index) => (
                     <Badge
                       key={index}
-                      variant="secondary" // Changed from outline to match darker theme better
+                      variant="secondary"
                       onClick={() => addSuggestedTag(cat)}
                       className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
                       role="button"
@@ -210,6 +219,42 @@ export default function TaskForm({ onAddTask, workers }: TaskFormProps) {
             {errors.assignedToId && <p className="text-sm text-destructive mt-1">{errors.assignedToId.message}</p>}
           </div>
 
+          <div>
+            <Label htmlFor="dueDate" className="block text-sm font-medium mb-1">
+                <CalendarIcon className="inline h-4 w-4 mr-1.5 text-muted-foreground"/>
+                Fecha de Vencimiento
+            </Label>
+            <Controller
+              name="dueDate"
+              control={control}
+              render={({ field }) => (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal text-base",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? format(field.value, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
+            />
+            {errors.dueDate && <p className="text-sm text-destructive mt-1">{errors.dueDate.message}</p>}
+          </div>
 
           <Button type="submit" className="w-full sm:w-auto text-base py-2.5 px-6">
             <PlusCircle className="mr-2 h-5 w-5" /> Añadir Tarea

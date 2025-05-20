@@ -6,4 +6,5 @@ export interface Task {
   completed: boolean;
   order: number;
   assignedToId?: string; // ID of the worker
+  dueDate?: string; // Fecha de vencimiento, formato YYYY-MM-DD
 }
